@@ -1,0 +1,1389 @@
+const questions = [
+  {
+    difficulty: 'beginner',
+    question: 'How do you say "thank you" in Indonesian?',
+    options: ['Sampai jumpa', 'Terima kasih', 'Apa kabar', 'Selamat pagi'],
+    answer: 'Terima kasih',
+  },
+  {
+    difficulty: 'beginner',
+    question: 'What is the Indonesian word for "good morning"?',
+    options: ['Selamat malam', 'Selamat pagi', 'Terima kasih', 'Apa kabar'],
+    answer: 'Selamat pagi',
+  },
+  {
+    difficulty: 'beginner',
+    question: 'How do you say "house" in Indonesian?',
+    options: ['Rumah', 'Sekolah', 'Pasar', 'Jalan'],
+    answer: 'Rumah',
+  },
+  {
+    difficulty: 'beginner',
+    question: 'What is the Indonesian word for "water"?',
+    options: ['Air', 'Api', 'Uang', 'Matahari'],
+    answer: 'Air',
+  },
+  {
+    difficulty: 'beginner',
+    question: 'Which word means "friend" in Indonesian?',
+    options: ['Teman', 'Tamu', 'Anak', 'Ibu'],
+    answer: 'Teman',
+  },
+  {
+    difficulty: 'beginner',
+    question: 'How do you say "school" in Indonesian?',
+    options: ['Rumah', 'Sekolah', 'Bandara', 'Kantor'],
+    answer: 'Sekolah',
+  },
+  {
+    difficulty: 'beginner',
+    question: 'What is the Indonesian word for "food"?',
+    options: ['Makan', 'Makanan', 'Minum', 'Pulang'],
+    answer: 'Makanan',
+  },
+  {
+    difficulty: 'intermediate',
+    question: 'How do you say "delicious" in Indonesian?',
+    options: ['Lezat', 'Sedih', 'Sulit', 'Cepat'],
+    answer: 'Lezat',
+  },
+  {
+    difficulty: 'intermediate',
+    question: 'What does "maaf" mean in English?',
+    options: ['Sorry', 'Please', 'Thank you', 'Welcome'],
+    answer: 'Sorry',
+  },
+  {
+    difficulty: 'intermediate',
+    question: 'What is the Indonesian word for "market"?',
+    options: ['Pasar', 'Pantai', 'Gunung', 'Taman'],
+    answer: 'Pasar',
+  },
+  {
+    difficulty: 'intermediate',
+    question: 'How do you say "tomorrow" in Indonesian?',
+    options: ['Kemarin', 'Hari ini', 'Besok', 'Malam'],
+    answer: 'Besok',
+  },
+  {
+    difficulty: 'intermediate',
+    question: 'What is the Indonesian word for "family"?',
+    options: ['Teman', 'Keluarga', 'Pekerjaan', 'Mobil'],
+    answer: 'Keluarga',
+  },
+  {
+    difficulty: 'intermediate',
+    question: 'How do you say "airport" in Indonesian?',
+    options: ['Stasiun', 'Bandara', 'Pelabuhan', 'Terminal'],
+    answer: 'Bandara',
+  },
+  {
+    difficulty: 'intermediate',
+    question: 'Which word means "to eat" in Indonesian?',
+    options: ['Tidur', 'Berjalan', 'Makan', 'Minum'],
+    answer: 'Makan',
+  },
+  {
+    difficulty: 'advanced',
+    question: 'What does "memahami" mean in English?',
+    options: ['To understand', 'To remember', 'To forget', 'To speak'],
+    answer: 'To understand',
+  },
+  {
+    difficulty: 'advanced',
+    question: 'How do you say "experience" in Indonesian?',
+    options: ['Pengalaman', 'Pekerjaan', 'Perjalanan', 'Persahabatan'],
+    answer: 'Pengalaman',
+  },
+  {
+    difficulty: 'advanced',
+    question: 'What is the Indonesian word for "environment"?',
+    options: ['Lingkungan', 'Kemampuan', 'Kebiasaan', 'Kesempatan'],
+    answer: 'Lingkungan',
+  },
+  {
+    difficulty: 'advanced',
+    question: 'What does "bersyukur" mean?',
+    options: ['Be grateful', 'Be busy', 'Be angry', 'Be alone'],
+    answer: 'Be grateful',
+  },
+  {
+    difficulty: 'advanced',
+    question: 'How do you say "challenge" in Indonesian?',
+    options: ['Tantangan', 'Pertemuan', 'Penghargaan', 'Perayaan'],
+    answer: 'Tantangan',
+  },
+  {
+    difficulty: 'advanced',
+    question: 'Which word means "accommodation" in Indonesian?',
+    options: ['Akomodasi', 'Kapal', 'Buku', 'Upacara'],
+    answer: 'Akomodasi',
+  },
+  {
+    difficulty: 'advanced',
+    question: 'How do you say "conversation" in Indonesian?',
+    options: ['Percakapan', 'Perjalanan', 'Pertanyaan', 'Pertanda'],
+    answer: 'Percakapan',
+  },
+];
+
+// ========== 3D SCENE INITIALIZATION ==========
+class Hero3DScene {
+  constructor() {
+    this.canvas = document.getElementById('hero-3d-canvas');
+    if (!this.canvas) return;
+    
+    this.scene = new THREE.Scene();
+    this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, alpha: true, antialias: true });
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.setPixelRatio(window.devicePixelRatio);
+    this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+    
+    // Camera
+    this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    this.camera.position.z = 5;
+    
+    // Scene setup
+    this.setupLighting();
+    this.createParticleField();
+    this.createAbstractMesh();
+    this.setupPostProcessing();
+    this.setupInteractivity();
+    
+    // Mouse tracking
+    this.mouse = new THREE.Vector2();
+    this.mouseTarget = new THREE.Vector2();
+    window.addEventListener('mousemove', (e) => this.onMouseMove(e));
+    window.addEventListener('scroll', () => this.onScroll());
+    window.addEventListener('resize', () => this.onWindowResize());
+    
+    this.animate();
+  }
+  
+  setupLighting() {
+    // Key light (cyan/holographic)
+    const keyLight = new THREE.PointLight(0x66ffe8, 2, 100);
+    keyLight.position.set(8, 5, 8);
+    this.scene.add(keyLight);
+    
+    // Fill light (gold glow)
+    const fillLight = new THREE.PointLight(0xffd700, 1.2, 80);
+    fillLight.position.set(-6, -3, 6);
+    this.scene.add(fillLight);
+    
+    // Rim light
+    const rimLight = new THREE.PointLight(0x8855ff, 1.5, 90);
+    rimLight.position.set(0, 8, -8);
+    this.scene.add(rimLight);
+    
+    // Ambient light (soft)
+    const ambientLight = new THREE.AmbientLight(0x0a0b14, 0.5);
+    this.scene.add(ambientLight);
+  }
+  
+  createParticleField() {
+    const particleCount = 2000;
+    const geometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(particleCount * 3);
+    const velocities = new Float32Array(particleCount * 3);
+    
+    for (let i = 0; i < particleCount * 3; i += 3) {
+      positions[i] = (Math.random() - 0.5) * 80;
+      positions[i + 1] = (Math.random() - 0.5) * 80;
+      positions[i + 2] = (Math.random() - 0.5) * 80;
+      
+      velocities[i] = (Math.random() - 0.5) * 0.1;
+      velocities[i + 1] = (Math.random() - 0.5) * 0.1;
+      velocities[i + 2] = (Math.random() - 0.5) * 0.1;
+    }
+    
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('velocity', new THREE.BufferAttribute(velocities, 3));
+    
+    const material = new THREE.PointsMaterial({
+      color: 0x66ffe8,
+      size: 0.15,
+      sizeAttenuation: true,
+      transparent: true,
+      opacity: 0.6,
+    });
+    
+    this.particles = new THREE.Points(geometry, material);
+    this.scene.add(this.particles);
+  }
+  
+  createAbstractMesh() {
+    // Create a complex icosahedron with displaced vertices
+    const geometry = new THREE.IcosahedronGeometry(2, 6);
+    
+    // Create custom shader material with PBR-like properties
+    const material = new THREE.ShaderMaterial({
+      uniforms: {
+        timeUniform: { value: 0 },
+        metallic: { value: 0.8 },
+        roughness: { value: 0.2 },
+        color1: { value: new THREE.Color(0x66ffe8) },
+        color2: { value: new THREE.Color(0xffd700) },
+        camPos: { value: this.camera.position },
+      },
+      vertexShader: `
+        varying vec3 vNormal;
+        varying vec3 vPos;
+        varying float vDisplacement;
+        uniform float timeUniform;
+        
+        void main() {
+          vNormal = normalize(normalMatrix * normal);
+          vPos = (modelMatrix * vec4(position, 1.0)).xyz;
+          
+          // Subtle displacement based on height
+          float displacement = sin(position.y * 8.0 + timeUniform * 0.5) * 0.2;
+          vDisplacement = displacement;
+          
+          vec3 newPos = position + normal * displacement;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(newPos, 1.0);
+        }
+      `,
+      fragmentShader: `
+        varying vec3 vNormal;
+        varying vec3 vPos;
+        varying float vDisplacement;
+        uniform vec3 color1;
+        uniform vec3 color2;
+        
+        void main() {
+          vec3 normal = normalize(vNormal);
+          vec3 viewDir = normalize(cameraPosition - vPos);
+          
+          // Fresnel effect
+          float fresnel = pow(1.0 - max(0.0, dot(viewDir, normal)), 2.0);
+          
+          // Mix colors based on height
+          vec3 color = mix(color1, color2, 0.5 + 0.5 * sin(vDisplacement * 8.0));
+          
+          // Add glow based on fresnel
+          color += fresnel * color2 * 0.5;
+          
+          gl_FragColor = vec4(color, 0.9);
+        }
+      `,
+      wireframe: false,
+      side: THREE.DoubleSide,
+    });
+    
+    this.mesh = new THREE.Mesh(geometry, material);
+    this.scene.add(this.mesh);
+  }
+  
+  setupPostProcessing() {
+    this.composer = new THREE.EffectComposer(this.renderer);
+    this.composer.addPass(new THREE.RenderPass(this.scene, this.camera));
+    
+    // Bloom pass
+    const bloomPass = new THREE.UnrealBloomPass(
+      new THREE.Vector2(window.innerWidth, window.innerHeight),
+      1.5,
+      0.4,
+      0.85
+    );
+    this.composer.addPass(bloomPass);
+    
+    // Chromatic aberration shader
+    const chromaticAberrationShader = {
+      uniforms: {
+        tDiffuse: { value: null },
+        amount: { value: 0.005 },
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform sampler2D tDiffuse;
+        uniform float amount;
+        varying vec2 vUv;
+        
+        void main() {
+          vec2 offset = amount * (vUv - 0.5);
+          float r = texture2D(tDiffuse, vUv + offset).r;
+          float g = texture2D(tDiffuse, vUv).g;
+          float b = texture2D(tDiffuse, vUv - offset).b;
+          gl_FragColor = vec4(r, g, b, 1.0);
+        }
+      `,
+    };
+    
+    const chromaticPass = new THREE.ShaderPass(chromaticAberrationShader);
+    this.composer.addPass(chromaticPass);
+    
+    // DOF shader
+    const dofShader = {
+      uniforms: {
+        tDiffuse: { value: null },
+        focus: { value: 2.0 },
+        aperture: { value: 0.1 },
+        maxblur: { value: 1.0 },
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform sampler2D tDiffuse;
+        uniform float focus;
+        uniform float aperture;
+        uniform float maxblur;
+        varying vec2 vUv;
+        
+        vec3 depthOfField(sampler2D tex, vec2 uv, float blur) {
+          vec3 col = texture2D(tex, uv).rgb;
+          col += texture2D(tex, uv + vec2(blur, 0.0)).rgb;
+          col += texture2D(tex, uv - vec2(blur, 0.0)).rgb;
+          col += texture2D(tex, uv + vec2(0.0, blur)).rgb;
+          col += texture2D(tex, uv - vec2(0.0, blur)).rgb;
+          return col / 5.0;
+        }
+        
+        void main() {
+          float blur = maxblur * aperture * 0.02;
+          gl_FragColor = vec4(depthOfField(tDiffuse, vUv, blur), 1.0);
+        }
+      `,
+    };
+    
+    const dofPass = new THREE.ShaderPass(dofShader);
+    this.composer.addPass(dofPass);
+  }
+  
+  setupInteractivity() {
+    // Mouse and scroll-based camera panning
+    this.targetRotationX = 0;
+    this.targetRotationY = 0;
+  }
+  
+  onMouseMove(event) {
+    this.mouseTarget.x = (event.clientX / window.innerWidth) * 2 - 1;
+    this.mouseTarget.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    
+    this.targetRotationY = this.mouseTarget.x * 0.3;
+    this.targetRotationX = this.mouseTarget.y * 0.3;
+  }
+  
+  onScroll() {
+    const scrollPercent = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+    if (this.mesh) {
+      this.mesh.position.z = 5 - scrollPercent * 3;
+      this.mesh.rotation.x += (this.targetRotationX - this.mesh.rotation.x) * 0.05;
+      this.mesh.rotation.y += (this.targetRotationY - this.mesh.rotation.y) * 0.05;
+    }
+  }
+  
+  onWindowResize() {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    
+    this.camera.aspect = width / height;
+    this.camera.updateProjectionMatrix();
+    
+    this.renderer.setSize(width, height);
+    this.composer.setSize(width, height);
+  }
+  
+  animate = () => {
+    requestAnimationFrame(this.animate);
+    
+    // Update particles
+    if (this.particles) {
+      const positions = this.particles.geometry.attributes.position.array;
+      const velocities = this.particles.geometry.attributes.velocity.array;
+      
+      for (let i = 0; i < positions.length; i += 3) {
+        positions[i] += velocities[i];
+        positions[i + 1] += velocities[i + 1];
+        positions[i + 2] += velocities[i + 2];
+        
+        // Wrap around
+        if (positions[i] > 40) positions[i] = -40;
+        if (positions[i] < -40) positions[i] = 40;
+        if (positions[i + 1] > 40) positions[i + 1] = -40;
+        if (positions[i + 1] < -40) positions[i + 1] = 40;
+        if (positions[i + 2] > 40) positions[i + 2] = -40;
+        if (positions[i + 2] < -40) positions[i + 2] = 40;
+      }
+      
+      this.particles.geometry.attributes.position.needsUpdate = true;
+      this.particles.rotation.x += 0.0001;
+      this.particles.rotation.y += 0.0002;
+    }
+    
+    // Update mesh rotation smoothly
+    if (this.mesh) {
+      this.mesh.rotation.x += (this.targetRotationX - this.mesh.rotation.x) * 0.1;
+      this.mesh.rotation.y += (this.targetRotationY - this.mesh.rotation.y) * 0.1;
+      
+      // Update shader uniform
+      this.mesh.material.uniforms.timeUniform.value += 0.01;
+    }
+    
+    this.composer.render();
+  };
+}
+
+// Initialize 3D scene
+window.addEventListener('DOMContentLoaded', () => {
+  new Hero3DScene();
+});
+
+const startQuizButton = document.getElementById('start-quiz');
+const quizCard = document.getElementById('quiz-card');
+const quizResults = document.getElementById('quiz-results');
+const quizLevelText = document.getElementById('quiz-level');
+const questionCountText = document.getElementById('question-count');
+const quizQuestion = document.getElementById('quiz-question');
+const quizOptions = document.getElementById('quiz-options');
+const nextQuestionButton = document.getElementById('next-question');
+const restartButton = document.getElementById('restart-quiz');
+const scoreText = document.getElementById('score-text');
+const levelText = document.getElementById('level-text');
+const logoContainer = document.getElementById('logo-3d-container');
+const logo3d = document.getElementById('logo-3d');
+const heroLogoContainer = document.getElementById('hero-logo-container');
+const heroLogo = document.getElementById('hero-logo');
+const heroCopy = document.querySelector('.hero-copy');
+const sections = document.querySelectorAll('.section');
+const liquidCanvas = document.getElementById('liquid-canvas');
+const trackCards = document.querySelectorAll('.track-card');
+const curriculumCards = document.querySelectorAll('.curriculum-card');
+const dashboardCards = document.querySelectorAll('.analytics-card');
+const curriculumToggles = document.querySelectorAll('.curriculum-toggle');
+const cursorTrail = document.getElementById('cursor-trail');
+const trailDots = [];
+let trailMouseX = window.innerWidth / 2;
+let trailMouseY = window.innerHeight / 2;
+
+const createLogoInteraction = (container, image) => {
+  if (!container || !image) return;
+
+  const resetLogo = () => {
+    image.style.transform = 'perspective(1400px) rotateX(0deg) rotateY(0deg) scale3d(1,1,1)';
+    image.style.filter = 'brightness(1) saturate(1)';
+    container.style.transform = `translateY(var(--hero-parallax,0))`;
+    container.classList.remove('interactive-active');
+  };
+
+  const moveLogo = (event) => {
+    const rect = container.getBoundingClientRect();
+    const x = event.clientX - rect.left - rect.width / 2;
+    const y = event.clientY - rect.top - rect.height / 2;
+    const rotateY = (x / rect.width) * 26;
+    const rotateX = -(y / rect.height) * 26;
+    const distance = Math.sqrt(x * x + y * y);
+    const intensity = Math.min(distance / (rect.width * 0.35), 1);
+    image.style.transform = `perspective(1400px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(${1 + intensity * 0.11},${1 + intensity * 0.11},${1 + intensity * 0.11})`;
+    image.style.filter = 'brightness(1.3) saturate(1.6) drop-shadow(0 24px 56px rgba(0,0,0,0.24))';
+    container.style.transform = `translateY(calc(var(--hero-parallax,0)-10px)) rotateX(${rotateX * 0.055}deg) rotateY(${rotateY * 0.045}deg)`;
+    container.classList.add('interactive-active');
+  };
+
+  container.addEventListener('pointermove', moveLogo);
+  container.addEventListener('pointerenter', moveLogo);
+  container.addEventListener('pointerleave', resetLogo);
+  container.addEventListener('pointercancel', resetLogo);
+  container.addEventListener('pointerup', resetLogo);
+  container.addEventListener('pointerdown', () => {
+    container.classList.add('interactive-press');
+    image.style.transform += ' scale3d(1.02, 1.02, 1.02)';
+    setTimeout(() => container.classList.remove('interactive-press'), 160);
+  });
+};
+
+createLogoInteraction(logoContainer, logo3d);
+createLogoInteraction(heroLogoContainer, heroLogo);
+
+const setupLiquidCanvas = () => {
+  if (!liquidCanvas || !liquidCanvas.getContext) return;
+  const ctx = liquidCanvas.getContext('2d');
+  const pointCount = 14;
+  const points = Array.from({ length: pointCount }, () => ({ x: window.innerWidth / 2, y: window.innerHeight / 2, radius: 20, alpha: 0.16 }));
+  let pointerX = window.innerWidth / 2;
+  let pointerY = window.innerHeight / 2;
+
+  const resizeCanvas = () => {
+    const dpr = window.devicePixelRatio || 1;
+    liquidCanvas.width = window.innerWidth * dpr;
+    liquidCanvas.height = window.innerHeight * dpr;
+    liquidCanvas.style.width = `${window.innerWidth}px`;
+    liquidCanvas.style.height = `${window.innerHeight}px`;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  };
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas, { passive: true });
+
+  window.addEventListener('mousemove', (event) => {
+    pointerX = event.clientX;
+    pointerY = event.clientY;
+  }, { passive: true });
+
+  const draw = () => {
+    // backdrop fade
+    ctx.globalCompositeOperation = 'source-over';
+    // background fill uses CSS variable for base to keep subtlety in light/dark
+    const baseFill = getComputedStyle(document.documentElement).getPropertyValue('--bg') || '#111112';
+    // use a semitransparent dark overlay for motion persistence in dark, and light overlay in light theme
+    const isLight = document.documentElement.classList.contains('light-theme');
+    ctx.fillStyle = isLight ? 'rgba(249,249,251,0.08)' : 'rgba(17, 17, 18, 0.14)';
+    ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+    ctx.globalCompositeOperation = 'lighter';
+
+    // read liquid colors from CSS vars so the canvas adapts to theme changes
+    const css = getComputedStyle(document.documentElement);
+    const c1 = (css.getPropertyValue('--liquid-color-1') || '166,92,255').trim();
+    const c2 = (css.getPropertyValue('--liquid-color-2') || '62,249,199').trim();
+
+    points.forEach((point, index) => {
+      point.x += (pointerX - point.x) * (0.24 + index * 0.01);
+      point.y += (pointerY - point.y) * (0.24 + index * 0.01);
+      const radius = 24 + index * 2.3;
+      const alpha = Math.max(0.02, 0.24 - index * 0.012);
+      const gradient = ctx.createRadialGradient(point.x, point.y, 0, point.x, point.y, radius);
+      gradient.addColorStop(0, `rgba(${c1}, ${alpha * 0.9})`);
+      gradient.addColorStop(0.4, `rgba(${c2}, ${alpha * 0.36})`);
+      gradient.addColorStop(1, isLight ? 'rgba(249,249,251,0)' : 'rgba(17, 17, 18, 0)');
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.arc(point.x, point.y, radius, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    requestAnimationFrame(draw);
+  };
+
+  draw();
+};
+
+const updateCardMotion = (card, event) => {
+  const rect = card.getBoundingClientRect();
+  const x = event.clientX - rect.left - rect.width / 2;
+  const y = event.clientY - rect.top - rect.height / 2;
+  const rotateY = (x / rect.width) * 12;
+  const rotateX = -(y / rect.height) * 10;
+  card.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(0)`;
+};
+
+const registerInteractiveCards = () => {
+  trackCards.forEach((card) => {
+    card.addEventListener('pointermove', (event) => updateCardMotion(card, event));
+    card.addEventListener('pointerenter', () => card.classList.add('active'));
+    card.addEventListener('pointerleave', () => {
+      card.classList.remove('active');
+      card.style.transform = '';
+    });
+  });
+
+  curriculumCards.forEach((card) => {
+    card.addEventListener('pointermove', (event) => updateCardMotion(card, event));
+    card.addEventListener('pointerenter', () => card.classList.add('active'));
+    card.addEventListener('pointerleave', () => {
+      card.classList.remove('active');
+      card.style.transform = '';
+    });
+  });
+
+  curriculumToggles.forEach((toggle) => {
+    const card = toggle.closest('.curriculum-card');
+    const details = card?.querySelector('.curriculum-details');
+    toggle.addEventListener('click', () => {
+      if (!card || !details) return;
+      card.classList.toggle('open');
+      details.classList.toggle('hidden');
+    });
+  });
+};
+
+createLogoInteraction(logoContainer, logo3d);
+createLogoInteraction(heroLogoContainer, heroLogo);
+
+setupLiquidCanvas();
+registerInteractiveCards();
+
+/* --- WebGL Fluid Simulation --- */
+const setupWebGLFluid = () => {
+  const canvas = document.getElementById('fluid-canvas-bg');
+  if (!canvas) return;
+
+  const gl = canvas.getContext('webgl2', { alpha: true, antialias: true });
+  if (!gl) return;
+
+  const resizeCanvas = () => {
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.floor(window.innerWidth * dpr);
+    canvas.height = Math.floor(window.innerHeight * dpr);
+    canvas.style.width = `${window.innerWidth}px`;
+    canvas.style.height = `${window.innerHeight}px`;
+    gl.viewport(0, 0, canvas.width, canvas.height);
+  };
+
+  resizeCanvas();
+
+  const vertexShaderSource = `#version 300 es
+    in vec2 position;
+    void main() {
+      gl_Position = vec4(position, 0.0, 1.0);
+    }
+  `;
+
+  const fragmentShaderSource = `#version 300 es
+    precision highp float;
+    uniform vec2 resolution;
+    uniform float time;
+    uniform vec2 mouse;
+    out vec4 fragColor;
+
+    vec3 palette(float t) {
+      return mix(
+        mix(vec3(0.08, 0.12, 0.22), vec3(0.24, 0.06, 0.82), smoothstep(0.2, 0.8, t)),
+        mix(vec3(0.05, 0.84, 0.93), vec3(0.97, 0.45, 0.95), smoothstep(0.4, 1.0, t)),
+        0.5 + 0.5 * sin(3.14 * t + vec3(0.0, 2.1, 4.2))
+      );
+    }
+
+    float hash(vec2 p) {
+      return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+    }
+
+    float noise(vec2 p) {
+      vec2 i = floor(p);
+      vec2 f = fract(p);
+      float a = hash(i);
+      float b = hash(i + vec2(1.0, 0.0));
+      float c = hash(i + vec2(0.0, 1.0));
+      float d = hash(i + vec2(1.0, 1.0));
+      vec2 u = f * f * (3.0 - 2.0 * f);
+      return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+    }
+
+    float fbm(vec2 p) {
+      float value = 0.0;
+      float amplitude = 0.6;
+      for (int i = 0; i < 5; i++) {
+        value += amplitude * noise(p);
+        p *= 2.1;
+        amplitude *= 0.5;
+      }
+      return value;
+    }
+
+    void main() {
+      vec2 uv = gl_FragCoord.xy / resolution.xy;
+      vec2 pos = uv * 2.0 - 1.0;
+      pos.x *= resolution.x / resolution.y;
+
+      vec2 m = (mouse / resolution) * 2.0 - 1.0;
+      float t = time * 0.2;
+      vec2 flow = vec2(
+        sin(pos.y * 2.4 + t * 0.9),
+        cos(pos.x * 2.7 - t * 1.1)
+      );
+
+      float n = fbm(pos * 1.6 + flow * 0.8 + vec2(t * 0.7, -t * 0.5));
+      float shimmer = fbm(pos * 3.5 + n * 1.7 + vec2(t * 1.4, t * 0.9));
+      float vignette = smoothstep(1.2, 0.3, length(pos));
+      float pulse = 0.4 + 0.6 * sin(time * 0.58 + length(pos) * 4.5);
+      float intensity = mix(n, shimmer, 0.38) * pulse;
+
+      vec3 color = palette(intensity + 0.22 * vignette);
+      color += 0.28 * vec3(0.15, 0.24, 0.95) * pow(1.0 - smoothstep(0.0, 0.7, length(pos - m * 0.8)), 2.5);
+      color *= 0.78 + 0.22 * vignette;
+
+      fragColor = vec4(color, 0.82);
+    }
+  `;
+
+  const createShader = (type, source) => {
+    const shader = gl.createShader(type);
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+    const success = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
+    if (!success) {
+      console.error(gl.getShaderInfoLog(shader));
+      gl.deleteShader(shader);
+      return null;
+    }
+    return shader;
+  };
+
+  const vertexShader = createShader(gl.VERTEX_SHADER, vertexShaderSource);
+  const fragmentShader = createShader(gl.FRAGMENT_SHADER, fragmentShaderSource);
+  if (!vertexShader || !fragmentShader) return;
+
+  const program = gl.createProgram();
+  gl.attachShader(program, vertexShader);
+  gl.attachShader(program, fragmentShader);
+  gl.linkProgram(program);
+  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+    console.error(gl.getProgramInfoLog(program));
+    return;
+  }
+  gl.useProgram(program);
+
+  const buffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+
+  const positionLocation = gl.getAttribLocation(program, 'position');
+  gl.enableVertexAttribArray(positionLocation);
+  gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+  const resolutionLocation = gl.getUniformLocation(program, 'resolution');
+  const timeLocation = gl.getUniformLocation(program, 'time');
+  const mouseLocation = gl.getUniformLocation(program, 'mouse');
+
+  let mouseX = window.innerWidth * 0.5;
+  let mouseY = window.innerHeight * 0.5;
+
+  document.addEventListener('mousemove', (event) => {
+    mouseX = event.clientX;
+    mouseY = window.innerHeight - event.clientY;
+  }, { passive: true });
+
+  const render = (now) => {
+    gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
+    gl.uniform1f(timeLocation, now * 0.001);
+    gl.uniform2f(mouseLocation, mouseX * (canvas.width / window.innerWidth), mouseY * (canvas.height / window.innerHeight));
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    requestAnimationFrame(render);
+  };
+
+  window.addEventListener('resize', resizeCanvas, { passive: true });
+  requestAnimationFrame(render);
+};
+
+setupWebGLFluid();
+(function(){
+  const themeToggle = document.getElementById('theme-toggle');
+  const storageKey = 'ibb_theme';
+  const saved = localStorage.getItem(storageKey);
+  const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+  const initial = saved || (prefersLight ? 'light' : 'dark');
+
+  const applyTheme = (theme) => {
+    const isLight = theme === 'light';
+    document.documentElement.classList.toggle('light-theme', isLight);
+    if (themeToggle) {
+      themeToggle.setAttribute('aria-pressed', String(isLight));
+    }
+    // update canvas blend mode to keep liquid visible
+    if (liquidCanvas) {
+      const blend = getComputedStyle(document.documentElement).getPropertyValue('--liquid-blend') || 'screen';
+      liquidCanvas.style.mixBlendMode = blend.trim();
+      liquidCanvas.style.opacity = isLight ? '0.92' : '0.88';
+    }
+    localStorage.setItem(storageKey, theme);
+  };
+
+  const toggleTheme = () => {
+    const current = document.documentElement.classList.contains('light-theme') ? 'light' : 'dark';
+    const next = current === 'light' ? 'dark' : 'light';
+    // ripple animation from center of button for cinematic feel
+    if (themeToggle) {
+      const r = document.createElement('span');
+      r.className = 'ripple';
+      themeToggle.appendChild(r);
+      // force layout then animate
+      requestAnimationFrame(() => r.classList.add('animate'));
+      r.addEventListener('animationend', () => r.remove());
+    }
+    applyTheme(next);
+  };
+
+  if (themeToggle) {
+    themeToggle.addEventListener('click', toggleTheme);
+  }
+
+  // apply initial theme on load
+  applyTheme(initial || 'dark');
+})();
+
+const heroBoomSound = new Audio('dragon-studio-boom-copyright-free-487662.mp3');
+heroBoomSound.volume = 0.16;
+if (heroLogoContainer) {
+  heroLogoContainer.addEventListener('pointerenter', () => {
+    if (heroBoomSound.paused) {
+      heroBoomSound.currentTime = 0;
+      heroBoomSound.play().catch(() => {});
+    }
+  });
+}
+
+const handleScrollParallax = () => {
+  const scrollY = window.scrollY;
+  if (heroLogoContainer) {
+    const offset = Math.min(scrollY * 0.14, 42);
+    heroLogoContainer.style.setProperty('--hero-parallax', `${offset}px`);
+  }
+  if (heroCopy) {
+    const offset = Math.min(scrollY * 0.09, 28);
+    heroCopy.style.setProperty('--hero-copy-parallax', `${offset}px`);
+  }
+  sections.forEach((section) => {
+    const rect = section.getBoundingClientRect();
+    const offset = Math.max(-16, Math.min(16, (rect.top - window.innerHeight / 2) * 0.03));
+    section.style.setProperty('--section-offset', `${offset}px`);
+  });
+  document.body.classList.toggle('scrolled', scrollY > 72);
+};
+
+window.addEventListener('scroll', () => {
+  window.requestAnimationFrame(handleScrollParallax);
+});
+
+handleScrollParallax();
+
+let currentQuestions = [];
+let currentIndex = 0;
+let score = 0;
+let selectedAnswer = null;
+
+function shuffle(array) {
+  return array.sort(() => Math.random() - 0.5);
+}
+
+function getLevel(score) {
+  if (score >= 16) return 'Advanced';
+  if (score >= 10) return 'Intermediate';
+  return 'Beginner';
+}
+
+function startQuiz() {
+  currentQuestions = shuffle([...questions]).slice(0, 20);
+  currentIndex = 0;
+  score = 0;
+  selectedAnswer = null;
+  quizLevelText.textContent = 'Answer all 20 questions to discover your level.';
+  questionCountText.textContent = `Question 1 of ${currentQuestions.length}`;
+  quizResults.classList.add('hidden');
+  quizCard.classList.remove('hidden');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const current = currentQuestions[currentIndex];
+  quizQuestion.textContent = current.question;
+  quizOptions.innerHTML = '';
+  selectedAnswer = null;
+  current.options.forEach((option) => {
+    const optionButton = document.createElement('button');
+    optionButton.type = 'button';
+    optionButton.className = 'option-button';
+    optionButton.textContent = option;
+    optionButton.addEventListener('click', () => {
+      selectedAnswer = option;
+      document.querySelectorAll('.option-button').forEach((btn) => btn.classList.remove('selected'));
+      optionButton.classList.add('selected');
+    });
+    quizOptions.appendChild(optionButton);
+  });
+  questionCountText.textContent = `Question ${currentIndex + 1} of ${currentQuestions.length}`;
+}
+
+function showResults() {
+  quizCard.classList.add('hidden');
+  quizResults.classList.remove('hidden');
+  const finalLevel = getLevel(score);
+  scoreText.textContent = `You scored ${score} out of ${currentQuestions.length} correct!`;
+  levelText.textContent = `Your Indonesian quiz level is: ${finalLevel}.`;
+}
+
+nextQuestionButton.addEventListener('click', () => {
+  if (!selectedAnswer) {
+    alert('Please select an answer before moving to the next question.');
+    return;
+  }
+
+  const current = currentQuestions[currentIndex];
+  if (selectedAnswer === current.answer) {
+    score += 1;
+  }
+
+  currentIndex += 1;
+  if (currentIndex >= currentQuestions.length) {
+    showResults();
+    return;
+  }
+
+  renderQuestion();
+});
+
+restartButton.addEventListener('click', () => {
+  quizCard.classList.add('hidden');
+  quizResults.classList.add('hidden');
+});
+
+startQuizButton.addEventListener('click', () => {
+  startQuiz();
+});
+
+/* --- UI enhancements: custom cursor, typing, reveal on scroll --- */
+(() => {
+  const cursor = document.getElementById('custom-cursor');
+  if (cursor) {
+    const dots = [];
+    if (cursorTrail) {
+      for (let i = 0; i < 6; i += 1) {
+        const dot = document.createElement('div');
+        dot.className = 'cursor-dot';
+        cursorTrail.appendChild(dot);
+        dots.push({ el: dot, x: trailMouseX, y: trailMouseY, alpha: 1 - i * 0.12 });
+      }
+    }
+
+    const updateDots = () => {
+      dots.forEach((dot, index) => {
+        dot.x += (trailMouseX - dot.x) * (0.26 + index * 0.05);
+        dot.y += (trailMouseY - dot.y) * (0.26 + index * 0.05);
+        const scale = 1 - index * 0.09;
+        dot.el.style.transform = `translate3d(${dot.x}px, ${dot.y}px, 0) translate(-50%, -50%) scale(${scale})`;
+        dot.el.style.opacity = `${Math.max(0.18, dot.alpha)}`;
+      });
+      requestAnimationFrame(updateDots);
+    };
+
+    window.addEventListener('mousemove', (e) => {
+      cursor.style.left = `${e.clientX}px`;
+      cursor.style.top = `${e.clientY}px`;
+      trailMouseX = e.clientX;
+      trailMouseY = e.clientY;
+    }, { passive: true });
+
+    const interactive = document.querySelectorAll('a, button, .option-button, .social, .track-card');
+    interactive.forEach((el) => {
+      el.addEventListener('pointerenter', () => cursor.classList.add('cursor-grow'));
+      el.addEventListener('pointerleave', () => cursor.classList.remove('cursor-grow'));
+    });
+
+    if (dots.length) updateDots();
+  }
+
+  // simple typed text effect for elements with class .typed
+  const typedEls = document.querySelectorAll('.typed');
+  typedEls.forEach((el) => {
+    const text = el.dataset.text || el.textContent || '';
+    el.textContent = '';
+    let i = 0;
+    const tick = () => {
+      if (i <= text.length) {
+        el.textContent = text.slice(0, i);
+        i += 1;
+        setTimeout(tick, 56);
+      }
+    };
+    setTimeout(tick, 560);
+  });
+
+  // intersection observer for reveal animations
+  const reveals = document.querySelectorAll('.reveal');
+  if (reveals.length) {
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          obs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+    reveals.forEach((r) => obs.observe(r));
+  }
+})();
+
+// --- Load-triggered staggered reveals and nav animation ---
+window.addEventListener('DOMContentLoaded', () => {
+  // stagger reveal for hero and other elements
+  const revealTargets = document.querySelectorAll('.reveal');
+  revealTargets.forEach((el, i) => {
+    setTimeout(() => el.classList.add('visible', 'pop-in'), 220 + i * 80);
+  });
+
+  // nav stagger
+  const navLinks = document.querySelectorAll('.site-nav a');
+  navLinks.forEach((a, i) => {
+    setTimeout(() => a.classList.add('visible'), 120 + i * 80);
+  });
+
+  // pulse CTA once on load
+  const cta = document.querySelector('.button');
+  if (cta) {
+    cta.classList.add('pulse');
+    setTimeout(() => cta.classList.remove('pulse'), 2800);
+  }
+
+  // spark cursor briefly
+  const cursor = document.getElementById('custom-cursor');
+  if (cursor) {
+    cursor.classList.add('spark');
+    setTimeout(() => cursor.classList.remove('spark'), 820);
+  }
+
+  // add logo pointer hover glow (non-destructive)
+  const logo = document.getElementById('logo-3d');
+  if (logo) {
+    logo.addEventListener('pointerenter', () => {
+      logo.classList.add('glow');
+    });
+    logo.addEventListener('pointerleave', () => {
+      logo.classList.remove('glow');
+    });
+    logo.addEventListener('click', () => {
+      logo.classList.add('ripple');
+      setTimeout(() => logo.classList.remove('ripple'), 600);
+    });
+  }
+
+  // animate option-buttons on hover for micro interactions
+  document.querySelectorAll('.option-button').forEach((btn) => {
+    btn.addEventListener('pointerenter', () => btn.classList.add('pop-in'));
+    btn.addEventListener('pointerleave', () => btn.classList.remove('pop-in'));
+  });
+});
+
+// --- Enhanced floating motion with mouse parallax ---
+(() => {
+  let mouseX = 0, mouseY = 0;
+  document.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX / window.innerWidth - 0.5;
+    mouseY = e.clientY / window.innerHeight - 0.5;
+  }, { passive: true });
+
+  // add subtle mouse-based tilt to floating sections for extra depth
+  const floatingElements = document.querySelectorAll('.section, .quiz-card, .contact-card');
+  window.addEventListener('mousemove', () => {
+    floatingElements.forEach((el) => {
+      const depth = el.dataset.depth || 2;
+      const tiltX = mouseY * depth * 0.5;
+      const tiltY = mouseX * depth * 0.5;
+      el.style.transform = `perspective(1200px) rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
+    });
+  }, { passive: true });
+})();
+
+// --- Floating particle background effect (subtle) ---
+(() => {
+  if (window.innerWidth < 768) return; // skip on mobile
+  
+  const canvas = document.createElement('canvas');
+  canvas.style.position = 'fixed';
+  canvas.style.top = '0';
+  canvas.style.left = '0';
+  canvas.style.pointerEvents = 'none';
+  canvas.style.zIndex = '1';
+  canvas.style.opacity = '0.15';
+  
+  document.body.appendChild(canvas);
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  
+  const particles = [];
+  for (let i = 0; i < 12; i++) {
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 1.5 + 0.5,
+      vx: Math.random() * 0.3 - 0.15,
+      vy: Math.random() * 0.3 - 0.15,
+    });
+  }
+  
+  const animateParticles = () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach((p) => {
+      p.x += p.vx;
+      p.y += p.vy;
+      if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+      if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+      ctx.fillStyle = 'rgba(122, 214, 255, 0.4)';
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    requestAnimationFrame(animateParticles);
+  };
+  
+  animateParticles();
+  
+  window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }, { passive: true });
+})();
+
+// --- Advanced Login/Logout with 3D modal and avatar ---
+(function() {
+  const authBtn = document.getElementById('auth-btn');
+  if (!authBtn) return;
+
+  function getUser() {
+    try {
+      return JSON.parse(localStorage.getItem('ibb_user') || 'null');
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function setUser(user) {
+    if (user) localStorage.setItem('ibb_user', JSON.stringify(user));
+    else localStorage.removeItem('ibb_user');
+    updateAuthUI();
+  }
+
+  function pickAvatarImage(email) {
+    const avatars = [
+      'adventurer-neutral-1782548502299.png',
+      'adventurer-neutral-1782548539293.png',
+      'adventurer-neutral-1782548555192.png',
+      'adventurer-neutral-1782548571580.png',
+      'adventurer-neutral-1782548581759.png'
+    ];
+    if (!email) return avatars[0];
+    // simple deterministic hash
+    let h = 0;
+    for (let i = 0; i < email.length; i++) h = (h * 31 + email.charCodeAt(i)) >>> 0;
+    const idx = h % avatars.length;
+    return avatars[idx];
+  }
+
+  function updateAuthUI() {
+    const user = getUser();
+    const existingBadge = document.getElementById('user-badge');
+    if (user) {
+      authBtn.innerHTML = '👋 Logout';
+      authBtn.classList.remove('ghost');
+      authBtn.style.background = 'linear-gradient(135deg,#ff6b6b 0%,#ff8787 100%)';
+      if (!existingBadge) {
+        const badge = document.createElement('div');
+        badge.id = 'user-badge';
+        const img = pickAvatarImage(user.email);
+        badge.innerHTML = `<span class="avatar"><img src="${img}" alt="avatar"/></span><span class="user-email">${user.email}</span>`;
+        document.querySelector('.site-header').appendChild(badge);
+      } else {
+        const img = pickAvatarImage(user.email);
+        const avatarEl = existingBadge.querySelector('.avatar');
+        if (avatarEl) {
+          if (avatarEl.querySelector('img')) avatarEl.querySelector('img').src = img;
+          else avatarEl.innerHTML = `<img src="${img}" alt="avatar"/>`;
+        }
+        existingBadge.querySelector('.user-email').textContent = user.email;
+      }
+    } else {
+      authBtn.innerHTML = 'Login';
+      authBtn.classList.add('ghost');
+      authBtn.style.background = '';
+      if (existingBadge) existingBadge.remove();
+    }
+  }
+
+  function showAuthModal() {
+    if (document.getElementById('auth-modal')) return;
+    const modal = document.createElement('div');
+    modal.id = 'auth-modal';
+    modal.className = 'auth-modal';
+    modal.innerHTML = `
+      <div class="auth-card" id="auth-card">
+        <div class="auth-header">
+          <div class="avatar" id="auth-avatar">🙂</div>
+          <div>
+            <div class="auth-title">Welcome — Sign in</div>
+            <div class="auth-note">Sign in to personalize your experience.</div>
+          </div>
+        </div>
+        <div class="auth-form">
+          <input id="auth-email" type="email" placeholder="you@domain.com" aria-label="email" />
+        </div>
+        <div class="auth-actions">
+          <button id="auth-cancel" class="button ghost">Cancel</button>
+          <button id="auth-submit" class="button">Sign In</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    const emailInput = modal.querySelector('#auth-email');
+    const avatarEl = modal.querySelector('#auth-avatar');
+    const submit = modal.querySelector('#auth-submit');
+    const cancel = modal.querySelector('#auth-cancel');
+
+    const existing = getUser();
+    if (existing && existing.email) emailInput.value = existing.email;
+
+    // set initial avatar image
+    const initialSrc = pickAvatarImage(existing && existing.email);
+    avatarEl.innerHTML = `<img src="${initialSrc}" alt="avatar"/>`;
+
+    emailInput.addEventListener('input', (e) => {
+      const src = pickAvatarImage(e.target.value || '');
+      if (avatarEl.querySelector('img')) avatarEl.querySelector('img').src = src;
+      else avatarEl.innerHTML = `<img src="${src}" alt="avatar"/>`;
+      avatarEl.style.transform = 'translateZ(30px) scale(1.02)';
+    });
+
+    cancel.addEventListener('click', () => { modal.remove(); });
+
+    // Google sign-in removed per user request.
+
+    submit.addEventListener('click', () => {
+      const val = emailInput.value && emailInput.value.trim();
+      if (!val) {
+        emailInput.focus();
+        return;
+      }
+      setUser({ email: val });
+      modal.remove();
+    });
+
+    emailInput.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Enter') submit.click();
+      if (ev.key === 'Escape') cancel.click();
+    });
+
+    // entrance animation
+    const card = modal.querySelector('.auth-card');
+    card.animate([
+      { transform: 'translateY(24px) rotateX(12deg) scale(.98)', opacity: 0 },
+      { transform: 'translateY(0) rotateX(0deg) scale(1)', opacity: 1 }
+    ], { duration: 520, easing: 'cubic-bezier(.2,.9,.28,1)' });
+    emailInput.focus();
+  }
+
+  authBtn.addEventListener('click', (e) => {
+    const user = getUser();
+    if (user) {
+      // show custom 3D logout confirmation
+      showLogoutConfirm();
+    } else {
+      showAuthModal();
+    }
+  });
+
+  function showLogoutConfirm() {
+    if (document.getElementById('confirm-modal')) return;
+    const modal = document.createElement('div');
+    modal.id = 'confirm-modal';
+    modal.className = 'confirm-modal';
+    modal.innerHTML = `
+      <div class="confirm-card">
+        <div class="confirm-title">Logout from IndoBeyondBorders</div>
+        <div class="confirm-body">Are you sure you want to logout? Your personalization will be cleared from this device.</div>
+        <div class="confirm-actions">
+          <button id="confirm-cancel" class="button ghost">Cancel</button>
+          <button id="confirm-ok" class="button">Logout</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    const card = modal.querySelector('.confirm-card');
+    const cancel = modal.querySelector('#confirm-cancel');
+    const ok = modal.querySelector('#confirm-ok');
+
+    // entrance animation
+    card.animate([
+      { transform: 'translateY(18px) rotateX(10deg) scale(.98)', opacity: 0 },
+      { transform: 'translateY(0) rotateX(0deg) scale(1)', opacity: 1 }
+    ], { duration: 420, easing: 'cubic-bezier(.2,.9,.28,1)' });
+
+    cancel.addEventListener('click', () => { modal.remove(); });
+    ok.addEventListener('click', () => {
+      setUser(null);
+      modal.remove();
+      // subtle confirmation feedback
+      const fb = document.createElement('div');
+      fb.className = 'confirm-body';
+      fb.style.position = 'fixed'; fb.style.left = '50%'; fb.style.bottom = '8%'; fb.style.transform = 'translateX(-50%)'; fb.style.padding = '10px 14px'; fb.style.borderRadius = '12px'; fb.style.background = 'rgba(0,0,0,0.6)'; fb.style.color = 'white'; fb.style.zIndex = 10030;
+      fb.textContent = 'You have logged out.';
+      document.body.appendChild(fb);
+      setTimeout(() => fb.remove(), 2200);
+    });
+  }
+
+  // initialize
+  updateAuthUI();
+})();
+
+// --- Hero logo hover interaction refinement ---
+(function() {
+  const heroLogo = document.getElementById('hero-logo');
+  if (!heroLogo) return;
+  
+  heroLogo.addEventListener('pointerenter', () => {
+    heroLogo.classList.add('glow');
+  });
+  heroLogo.addEventListener('pointerleave', () => {
+    heroLogo.classList.remove('glow');
+  });
+})();
+
+// ========== SCROLL-TRIGGERED ANIMATIONS ==========
+(function() {
+  // Setup IntersectionObserver for scroll-triggered animations
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -100px 0px',
+  };
+  
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in-view');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, observerOptions);
+  
+  // Observe all reveal elements and sections
+  document.querySelectorAll('.reveal, .section').forEach((el) => {
+    observer.observe(el);
+  });
+  
+  // Parallax scroll effect for hero content overlay only (subtle, non-blocking)
+  let scrollTicking = false;
+  window.addEventListener('scroll', () => {
+    if (!scrollTicking) {
+      window.requestAnimationFrame(() => {
+        const heroContent = document.querySelector('.hero-content-overlay');
+        if (heroContent) {
+          const distance = window.scrollY;
+          // Only apply parallax within hero section bounds
+          const heroSection = document.querySelector('.hero-section');
+          if (heroSection && distance < heroSection.offsetHeight) {
+            heroContent.style.transform = `translateY(${distance * 0.15}px)`;
+          } else {
+            heroContent.style.transform = 'translateY(0)';
+          }
+        }
+        scrollTicking = false;
+      });
+      scrollTicking = true;
+    }
+  });
+  
+  // Smooth scroll behavior for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+    anchor.addEventListener('click', (e) => {
+      const href = anchor.getAttribute('href');
+      if (href === '#') return;
+      
+      const target = document.querySelector(href);
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+})();
+
+

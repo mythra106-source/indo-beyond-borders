@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IndoBeyondBorders</title>
+  <link rel="icon" href="Logo.png" />
+  <link rel="apple-touch-icon" href="Logo.png" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@r128/examples/js/postprocessing/EffectComposer.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@r128/examples/js/postprocessing/RenderPass.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@r128/examples/js/postprocessing/UnrealBloomPass.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@r128/examples/js/postprocessing/ShaderPass.js"></script>
+</head>
+<body>
+  <div id="custom-cursor" aria-hidden="true"></div>
+  <canvas id="liquid-canvas" aria-hidden="true"></canvas>
+  <canvas id="fluid-canvas-bg" aria-hidden="true"></canvas>
+  <header class="site-header">
+    <div class="brand">
+      <div id="logo-3d-container" class="logo-3d-container">
+        <img id="logo-3d" src="Logo.png" alt="IndoBeyondBorders 3D logo" class="logo" />
+      </div>
+      <div>
+        <h1>IndoBeyondBorders</h1>
+        <p>Elite digital learning built to feel alive, fast, and cinematic.</p>
+      </div>
+    </div>
+
+    <nav class="site-nav">
+      <a href="#home">Home</a>
+      <a href="#quiz">Quiz</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <div class="site-actions">
+      <button id="auth-btn" class="button ghost">Login</button>
+    </div>
+  </header>
+
+  <main>
+    <section id="home" class="section hero-section">
+      <canvas id="hero-3d-canvas" aria-hidden="true" class="hero-3d-canvas"></canvas>
+      <div class="hero-grid-overlay" aria-hidden="true"></div>
+      <div class="hero-content-overlay">
+        <div class="hero-copy glassmorphic-panel">
+          <div class="hero-intro">
+            <div class="hero-label reveal">INDOBEYONDBORDERS</div>
+            <h1 class="hero-title reveal" data-text="Learn faster. Think sharper.">Learn faster. Think sharper.</h1>
+            <div class="hero-actions">
+              <a href="#quiz" class="button">Start Quiz</a>
+              <a href="#contact" class="button ghost">Contact</a>
+            </div>
+          </div>
+          <div class="hero-meta reveal">
+            <p class="typed" data-text="Navigate curated curriculum, unlock streaks, and stay ahead of the knowledge curve."></p>
+          </div>
+        </div>
+        <div class="hero-info glassmorphic-panel">
+          <div class="hero-logo-display">
+            <img src="Logo.png" alt="IndoBeyondBorders Logo" class="hero-philosophy-logo" />
+          </div>
+          <div class="hero-visual-panel reveal">
+            <h3>Philosophy</h3>
+            <p>Where Learning knows no limits</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="quiz" class="section quiz-section">
+      <div class="section-header">
+        <h2>Indonesian Vocabulary Quiz</h2>
+        <p>Answer 20 beginner, intermediate, and advanced vocabulary questions. Your level will be calculated automatically at the end.</p>
+      </div>
+
+      <div class="quiz-start">
+        <button id="start-quiz" class="button">Start Indonesian Quiz</button>
+        <p class="quiz-note">This quiz has 20 vocabulary questions spanning beginner, intermediate, and advanced levels.</p>
+      </div>
+
+      <div class="quiz-card hidden" id="quiz-card">
+        <div class="quiz-info">
+          <p id="quiz-level"></p>
+          <p id="question-count"></p>
+        </div>
+        <div class="quiz-question" id="quiz-question"></div>
+        <div class="quiz-options" id="quiz-options"></div>
+        <div class="quiz-actions">
+          <button id="next-question">Next Question</button>
+        </div>
+      </div>
+
+      <div class="quiz-results hidden" id="quiz-results">
+        <h3>Quiz Complete</h3>
+        <p id="score-text"></p>
+        <p id="level-text"></p>
+        <button id="restart-quiz">Try Again</button>
+      </div>
+    </section>
+
+    <section id="contact" class="section contact-section">
+      <div class="section-header">
+        <h2>Connect With Us</h2>
+        <p>Have questions, feedback, or want to collaborate? Get in touch or follow us on social.</p>
+      </div>
+
+      <div class="contact-container">
+        <div class="contact-email">
+          <h3>Email</h3>
+          <a href="mailto:indobeyondborders@gmail.com" class="email-link"> indobeyondborders@gmail.com</a>
+        </div>
+
+        <div class="contact-socials">
+          <h3>Follow Us</h3>
+          <div class="social-links">
+            <a href="https://www.youtube.com/@indo_beyondborders/shorts" target="_blank" rel="noopener" class="social-icon youtube" aria-label="YouTube">
+              <img src="youtube-logo-youtube-icon-transparent-free-png.webp" alt="YouTube" class="social-img" />
+              <span>YouTube</span>
+            </a>
+            <a href="https://www.instagram.com/indo_beyondborders/" target="_blank" rel="noopener" class="social-icon instagram" aria-label="Instagram">
+              <img src="pngtree-instagram-icon-instagram-logo-png-image_3584852.png" alt="Instagram" class="social-img" />
+              <span>Instagram</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 IndoBeyondBorders. Explore Indonesia from anywhere.</p>
+    <p class="footer-contact">Contact us at <a href="mailto:indobeyondborders@gmail.com">indobeyondborders@gmail.com</a></p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
